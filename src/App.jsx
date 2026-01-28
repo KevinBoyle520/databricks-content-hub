@@ -123,7 +123,7 @@ export default function App() {
               featured: (row.Featured || '').toLowerCase().trim() === 'yes',
             };
           });
-        setContentData(parsed);
+        setContentData(parsed.reverse());
         setLoading(false);
       },
       error: (err) => {
