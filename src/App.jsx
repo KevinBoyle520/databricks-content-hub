@@ -122,7 +122,7 @@ export default function App() {
               badge: detectBadge(row.URL, row.Topic || ''),
             };
           });
-        setContentData(parsed);
+        setContentData(parsed.reverse());
         setLoading(false);
       },
       error: (err) => {
