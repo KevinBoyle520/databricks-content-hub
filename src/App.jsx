@@ -464,15 +464,16 @@ export default function App() {
         
         .featured-card {
           background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-          border-radius: 16px;
-          padding: 28px;
+          border-radius: 20px;
+          padding: 36px;
           color: white;
           text-decoration: none;
           display: block;
           transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
           position: relative;
           overflow: hidden;
-          max-width: 380px;
+          max-width: 480px;
+          min-height: 320px;
         }
         
         .featured-card::before {
@@ -481,7 +482,7 @@ export default function App() {
           top: 0;
           left: 0;
           right: 0;
-          height: 4px;
+          height: 5px;
           background: linear-gradient(90deg, #FF3621 0%, #FF6B4A 100%);
         }
         
@@ -497,10 +498,10 @@ export default function App() {
         
         .featured-arrow {
           position: absolute;
-          top: 24px;
-          right: 24px;
-          width: 32px;
-          height: 32px;
+          top: 32px;
+          right: 32px;
+          width: 40px;
+          height: 40px;
           border-radius: 50%;
           background: #FF3621;
           display: flex;
@@ -515,22 +516,22 @@ export default function App() {
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          padding: 6px 12px;
+          padding: 8px 14px;
           background: rgba(255, 54, 33, 0.15);
           color: #FF6B4A;
-          font-size: 10px;
+          font-size: 11px;
           font-weight: 700;
           text-transform: uppercase;
           letter-spacing: 1.5px;
-          border-radius: 4px;
-          margin-bottom: 16px;
+          border-radius: 6px;
+          margin-bottom: 20px;
         }
         
         .featured-tag {
           display: inline-block;
-          padding: 4px 10px;
+          padding: 6px 12px;
           border-radius: 6px;
-          font-size: 10px;
+          font-size: 11px;
           font-weight: 600;
           text-transform: uppercase;
           letter-spacing: 0.5px;
@@ -609,10 +610,10 @@ export default function App() {
             target="_blank"
             rel="noopener noreferrer"
             className="featured-card animate-in stagger-3"
-            style={{ flex: '0 1 380px' }}
+            style={{ flex: '0 1 480px' }}
           >
             <div className="featured-arrow">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
                 <path d="M7 17L17 7M17 7H7M17 7V17" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
@@ -626,30 +627,30 @@ export default function App() {
             
             <h3 style={{
               fontFamily: "'Fraunces', serif",
-              fontSize: '18px',
+              fontSize: '24px',
               fontWeight: 600,
-              margin: '0 0 12px 0',
-              lineHeight: 1.35,
-              paddingRight: '40px',
+              margin: '0 0 16px 0',
+              lineHeight: 1.3,
+              paddingRight: '48px',
             }}>
               {featuredArticle.topic}
             </h3>
             
             <p style={{
-              fontSize: '13px',
-              lineHeight: 1.6,
+              fontSize: '15px',
+              lineHeight: 1.7,
               color: 'rgba(255, 255, 255, 0.7)',
-              margin: '0 0 16px 0',
+              margin: '0 0 24px 0',
               display: '-webkit-box',
-              WebkitLineClamp: 3,
+              WebkitLineClamp: 4,
               WebkitBoxOrient: 'vertical',
               overflow: 'hidden',
             }}>
               {featuredArticle.summary}
             </p>
             
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-              {featuredArticle.area.slice(0, 2).map(a => (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              {featuredArticle.area.slice(0, 3).map(a => (
                 <span key={a} className="featured-tag">{a}</span>
               ))}
             </div>
