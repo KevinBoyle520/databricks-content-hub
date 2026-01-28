@@ -120,9 +120,10 @@ export default function App() {
               area: parseArea(row.Area),
               url: row.URL || '',
               badge: detectBadge(row.URL, row.Topic || ''),
+              featured: (row.Featured || '').toLowerCase().trim() === 'yes',
             };
           });
-        setContentData(parsed.reverse());
+        setContentData(parsed);
         setLoading(false);
       },
       error: (err) => {
@@ -140,6 +141,11 @@ export default function App() {
   
   const allAreas = useMemo(() => 
     [...new Set(contentData.flatMap(item => item.area))].sort(),
+    [contentData]
+  );
+
+  const featuredArticle = useMemo(() => 
+    contentData.find(item => item.featured) || null,
     [contentData]
   );
 
@@ -455,6 +461,82 @@ export default function App() {
         .name-link:hover {
           opacity: 0.8;
         }
+        
+        .featured-card {
+          background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+          border-radius: 16px;
+          padding: 28px;
+          color: white;
+          text-decoration: none;
+          display: block;
+          transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+          position: relative;
+          overflow: hidden;
+          max-width: 380px;
+        }
+        
+        .featured-card::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 4px;
+          background: linear-gradient(90deg, #FF3621 0%, #FF6B4A 100%);
+        }
+        
+        .featured-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .featured-card:hover .featured-arrow {
+          transform: translate(0, 0);
+          opacity: 1;
+        }
+        
+        .featured-arrow {
+          position: absolute;
+          top: 24px;
+          right: 24px;
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          background: #FF3621;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          opacity: 0;
+          transform: translate(-8px, 8px);
+          transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .featured-label {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 6px 12px;
+          background: rgba(255, 54, 33, 0.15);
+          color: #FF6B4A;
+          font-size: 10px;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 1.5px;
+          border-radius: 4px;
+          margin-bottom: 16px;
+        }
+        
+        .featured-tag {
+          display: inline-block;
+          padding: 4px 10px;
+          border-radius: 6px;
+          font-size: 10px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          background: rgba(255, 255, 255, 0.1);
+          color: rgba(255, 255, 255, 0.7);
+        }
       `}</style>
       
       {/* Geometric Accents */}
@@ -467,51 +549,112 @@ export default function App() {
         maxWidth: '1300px',
         margin: '0 auto',
         position: 'relative',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        gap: '48px',
+        flexWrap: 'wrap',
       }}>
-        <div className="animate-in stagger-1" style={{ marginBottom: '24px' }}>
-          <span style={{
-            display: 'inline-block',
-            padding: '8px 16px',
-            background: '#1a1a1a',
-            color: 'white',
-            fontSize: '11px',
+        <div style={{ flex: '1 1 500px' }}>
+          <div className="animate-in stagger-1" style={{ marginBottom: '24px' }}>
+            <span style={{
+              display: 'inline-block',
+              padding: '8px 16px',
+              background: '#1a1a1a',
+              color: 'white',
+              fontSize: '11px',
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '2px',
+              borderRadius: '4px',
+            }}>
+              Curated by <a 
+                href="https://www.linkedin.com/in/kevin-boyle-/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="name-link"
+              >Kevin Boyle</a>
+            </span>
+          </div>
+          
+          <h1 className="animate-in stagger-2" style={{
+            fontFamily: "'Fraunces', serif",
+            fontSize: 'clamp(40px, 6vw, 72px)',
             fontWeight: 700,
-            textTransform: 'uppercase',
-            letterSpacing: '2px',
-            borderRadius: '4px',
+            margin: '0 0 20px 0',
+            lineHeight: 1.05,
+            color: '#1a1a1a',
+            maxWidth: '800px',
           }}>
-            Curated by <a 
-              href="https://www.linkedin.com/in/kevin-boyle-/" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="name-link"
-            >Kevin Boyle</a>
-          </span>
+            Databricks
+            <br />
+            <span style={{ color: '#FF3621' }}>Content Hub</span>
+          </h1>
+          
+          <p className="animate-in stagger-3" style={{
+            fontSize: '18px',
+            color: '#666',
+            margin: 0,
+            maxWidth: '520px',
+            lineHeight: 1.7,
+          }}>
+            The latest features, updates, and customer stories—filtered by what matters to you.
+          </p>
         </div>
         
-        <h1 className="animate-in stagger-2" style={{
-          fontFamily: "'Fraunces', serif",
-          fontSize: 'clamp(40px, 6vw, 72px)',
-          fontWeight: 700,
-          margin: '0 0 20px 0',
-          lineHeight: 1.05,
-          color: '#1a1a1a',
-          maxWidth: '800px',
-        }}>
-          Databricks
-          <br />
-          <span style={{ color: '#FF3621' }}>Content Hub</span>
-        </h1>
-        
-        <p className="animate-in stagger-3" style={{
-          fontSize: '18px',
-          color: '#666',
-          margin: 0,
-          maxWidth: '520px',
-          lineHeight: 1.7,
-        }}>
-          The latest features, updates, and customer stories—filtered by what matters to you.
-        </p>
+        {/* Featured Content */}
+        {featuredArticle && (
+          <a 
+            href={featuredArticle.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="featured-card animate-in stagger-3"
+            style={{ flex: '0 1 380px' }}
+          >
+            <div className="featured-arrow">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
+                <path d="M7 17L17 7M17 7H7M17 7V17" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+            
+            <div className="featured-label">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+              </svg>
+              Featured
+            </div>
+            
+            <h3 style={{
+              fontFamily: "'Fraunces', serif",
+              fontSize: '18px',
+              fontWeight: 600,
+              margin: '0 0 12px 0',
+              lineHeight: 1.35,
+              paddingRight: '40px',
+            }}>
+              {featuredArticle.topic}
+            </h3>
+            
+            <p style={{
+              fontSize: '13px',
+              lineHeight: 1.6,
+              color: 'rgba(255, 255, 255, 0.7)',
+              margin: '0 0 16px 0',
+              display: '-webkit-box',
+              WebkitLineClamp: 3,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+            }}>
+              {featuredArticle.summary}
+            </p>
+            
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+              {featuredArticle.area.slice(0, 2).map(a => (
+                <span key={a} className="featured-tag">{a}</span>
+              ))}
+            </div>
+          </a>
+        )}
       </header>
 
       {/* Filters */}
@@ -552,7 +695,7 @@ export default function App() {
           {/* Audience Filter */}
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '14px' }}>
-              <span className="section-label" style={{ margin: 0 }}>I work in...</span>
+              <span className="section-label" style={{ margin: 0 }}>I'm a...</span>
               {hasActiveFilters && (
                 <button className="clear-btn" onClick={clearFilters}>
                   Clear all
