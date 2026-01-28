@@ -696,7 +696,7 @@ export default function App() {
           {/* Audience Filter */}
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '14px' }}>
-              <span className="section-label" style={{ margin: 0 }}>I'm a...</span>
+              <span className="section-label" style={{ margin: 0 }}>I work in...</span>
               {hasActiveFilters && (
                 <button className="clear-btn" onClick={clearFilters}>
                   Clear all
