@@ -5,8 +5,15 @@ import Papa from 'papaparse';
 const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS0Gxp0gr3kpQ5E8KpZT_GNw4qZnV2vyFdFDetrgU_d63DYm5hR401XLFDBJzVkiDWkssP_pPCuMghc/pub?output=csv';
 
 // Mapping from raw CSV values to consolidated categories
+// Includes both legacy raw values AND the consolidated names themselves
 const AUDIENCE_MAP = {
+  // Consolidated names (pass through)
   'engineering': 'Engineering',
+  'analytics & bi': 'Analytics & BI',
+  'ai/ml': 'AI/ML',
+  'leadership': 'Leadership',
+  'product & gtm': 'Product & GTM',
+  // Legacy raw values (for backwards compatibility)
   'data engineering': 'Engineering',
   'data architects': 'Engineering',
   'technical leadership': 'Engineering',
@@ -16,26 +23,31 @@ const AUDIENCE_MAP = {
   'bi team': 'Analytics & BI',
   'ai': 'AI/ML',
   'mlops/llmops': 'AI/ML',
-  'leadership': 'Leadership',
   'product': 'Product & GTM',
   'sales': 'Product & GTM',
   'marketing': 'Product & GTM',
 };
 
 const AREA_MAP = {
+  // Consolidated names (pass through)
+  'ai & agents': 'AI & Agents',
+  'data engineering': 'Data Engineering',
+  'data warehousing': 'Data Warehousing',
+  'governance': 'Governance',
+  'strategy': 'Strategy',
+  'customer stories': 'Customer Stories',
+  'customer story': 'Customer Stories',
+  'product releases': 'Product Releases',
+  // Legacy raw values (for backwards compatibility)
   'ai': 'AI & Agents',
   'agentic ai': 'AI & Agents',
   'llmops': 'AI & Agents',
-  'data engineering': 'Data Engineering',
   'orchestration': 'Data Engineering',
   'data and platform engineering': 'Data Engineering',
-  'data warehousing': 'Data Warehousing',
   'dashboards': 'Data Warehousing',
   'data analysis': 'Data Warehousing',
   'data governance': 'Governance',
   'architecture': 'Governance',
-  'strategy': 'Strategy',
-  'customer story': 'Customer Stories',
   'product engineering': 'Customer Stories',
   'retrospective reports': 'Data Warehousing',
 };
