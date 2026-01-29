@@ -52,6 +52,12 @@ const AREA_MAP = {
   'retrospective reports': 'Data Warehousing',
 };
 
+// Month order for sorting
+const MONTH_ORDER = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'
+];
+
 function parseAudience(raw) {
   if (!raw) return [];
   const items = raw.split(/[,;]/).map(s => s.trim().toLowerCase()).filter(Boolean);
@@ -97,7 +103,9 @@ export default function App() {
   const [error, setError] = useState(null);
   const [selectedAudiences, setSelectedAudiences] = useState([]);
   const [selectedAreas, setSelectedAreas] = useState([]);
+  const [selectedMonth, setSelectedMonth] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     let currentMonth = '';
@@ -144,6 +152,19 @@ export default function App() {
     [contentData]
   );
 
+  // Get all unique months with their article counts, sorted chronologically
+  const monthsWithCounts = useMemo(() => {
+    const counts = {};
+    contentData.forEach(item => {
+      if (item.month) {
+        counts[item.month] = (counts[item.month] || 0) + 1;
+      }
+    });
+    return Object.entries(counts)
+      .sort((a, b) => MONTH_ORDER.indexOf(a[0]) - MONTH_ORDER.indexOf(b[0]))
+      .map(([month, count]) => ({ month, count }));
+  }, [contentData]);
+
   const featuredArticle = useMemo(() => 
     contentData.find(item => item.featured) || null,
     [contentData]
@@ -155,12 +176,13 @@ export default function App() {
         item.audience.some(a => selectedAudiences.includes(a));
       const matchesArea = selectedAreas.length === 0 || 
         item.area.some(a => selectedAreas.includes(a));
+      const matchesMonth = !selectedMonth || item.month === selectedMonth;
       const matchesSearch = searchQuery === '' || 
         item.topic.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.summary.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchesAudience && matchesArea && matchesSearch;
+      return matchesAudience && matchesArea && matchesMonth && matchesSearch;
     });
-  }, [contentData, selectedAudiences, selectedAreas, searchQuery]);
+  }, [contentData, selectedAudiences, selectedAreas, selectedMonth, searchQuery]);
 
   const toggleAudience = (audience) => {
     setSelectedAudiences(prev => 
@@ -174,13 +196,20 @@ export default function App() {
     );
   };
 
+  const handleMonthClick = (month, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSelectedMonth(prev => prev === month ? null : month);
+  };
+
   const clearFilters = () => {
     setSelectedAudiences([]);
     setSelectedAreas([]);
+    setSelectedMonth(null);
     setSearchQuery('');
   };
 
-  const hasActiveFilters = selectedAudiences.length > 0 || selectedAreas.length > 0 || searchQuery !== '';
+  const hasActiveFilters = selectedAudiences.length > 0 || selectedAreas.length > 0 || selectedMonth || searchQuery !== '';
 
   if (loading) {
     return (
@@ -246,6 +275,16 @@ export default function App() {
         @keyframes fadeUp {
           from { opacity: 0; transform: translateY(20px); }
           to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideIn {
+          from { transform: translateX(-100%); }
+          to { transform: translateX(0); }
+        }
+        
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
         }
         
         .animate-in {
@@ -416,6 +455,23 @@ export default function App() {
           font-size: 13px;
           color: #999;
           font-weight: 400;
+          cursor: pointer;
+          padding: 4px 10px;
+          border-radius: 6px;
+          transition: all 0.2s ease;
+          border: 1px solid transparent;
+        }
+        
+        .month-badge:hover {
+          background: #FFF4F2;
+          color: #FF3621;
+          border-color: #FFD9D4;
+        }
+        
+        .month-badge.active {
+          background: #FF3621;
+          color: white;
+          border-color: #FF3621;
         }
         
         .source-badge {
@@ -538,7 +594,213 @@ export default function App() {
           background: rgba(255, 255, 255, 0.1);
           color: rgba(255, 255, 255, 0.7);
         }
+        
+        .sidebar-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.3);
+          z-index: 998;
+          animation: fadeIn 0.3s ease;
+        }
+        
+        .sidebar {
+          position: fixed;
+          top: 0;
+          left: 0;
+          height: 100vh;
+          width: 300px;
+          background: white;
+          z-index: 999;
+          box-shadow: 4px 0 24px rgba(0, 0, 0, 0.1);
+          animation: slideIn 0.3s ease;
+          display: flex;
+          flex-direction: column;
+        }
+        
+        .sidebar-header {
+          padding: 24px;
+          border-bottom: 1px solid #E8E5E0;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        
+        .sidebar-close {
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          border: none;
+          background: #F5F3F0;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.2s ease;
+        }
+        
+        .sidebar-close:hover {
+          background: #E8E5E0;
+        }
+        
+        .sidebar-content {
+          flex: 1;
+          overflow-y: auto;
+          padding: 24px;
+        }
+        
+        .month-list-item {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 14px 16px;
+          border-radius: 10px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          margin-bottom: 4px;
+          border: 1px solid transparent;
+        }
+        
+        .month-list-item:hover {
+          background: #FFF4F2;
+          border-color: #FFE8E4;
+        }
+        
+        .month-list-item.active {
+          background: #FF3621;
+          color: white;
+        }
+        
+        .month-list-item.active .month-count {
+          background: rgba(255, 255, 255, 0.2);
+          color: white;
+        }
+        
+        .month-count {
+          font-size: 12px;
+          font-weight: 600;
+          background: #F0EDE8;
+          color: #666;
+          padding: 4px 10px;
+          border-radius: 100px;
+          transition: all 0.2s ease;
+        }
+        
+        .calendar-btn {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 10px 18px;
+          border-radius: 100px;
+          border: 1.5px solid #E0DDD8;
+          background: transparent;
+          color: #666;
+          font-size: 13px;
+          font-family: 'Instrument Sans', sans-serif;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+          white-space: nowrap;
+        }
+        
+        .calendar-btn:hover {
+          border-color: #FF3621;
+          color: #FF3621;
+          transform: translateY(-1px);
+        }
+        
+        .calendar-btn.has-selection {
+          background: #FF3621;
+          border-color: #FF3621;
+          color: white;
+          box-shadow: 0 4px 12px rgba(255, 54, 33, 0.3);
+        }
+        
+        .active-filter-tag {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 6px 12px;
+          background: #FFF4F2;
+          border: 1px solid #FFD9D4;
+          border-radius: 100px;
+          font-size: 12px;
+          font-weight: 500;
+          color: #FF3621;
+        }
+        
+        .active-filter-tag button {
+          background: none;
+          border: none;
+          padding: 0;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          color: #FF3621;
+          opacity: 0.7;
+          transition: opacity 0.2s;
+        }
+        
+        .active-filter-tag button:hover {
+          opacity: 1;
+        }
       `}</style>
+      
+      {/* Sidebar Overlay */}
+      {sidebarOpen && (
+        <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />
+      )}
+      
+      {/* Month Sidebar */}
+      {sidebarOpen && (
+        <div className="sidebar">
+          <div className="sidebar-header">
+            <div>
+              <h3 style={{
+                fontFamily: "'Fraunces', serif",
+                fontSize: '20px',
+                fontWeight: 600,
+                margin: '0 0 4px 0',
+              }}>
+                Browse by Month
+              </h3>
+              <p style={{ fontSize: '13px', color: '#999', margin: 0 }}>
+                2026 Archive
+              </p>
+            </div>
+            <button className="sidebar-close" onClick={() => setSidebarOpen(false)}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+          </div>
+          <div className="sidebar-content">
+            <div 
+              className={`month-list-item ${!selectedMonth ? 'active' : ''}`}
+              onClick={() => { setSelectedMonth(null); setSidebarOpen(false); }}
+            >
+              <span style={{ fontWeight: 500 }}>All Months</span>
+              <span className="month-count">{contentData.length}</span>
+            </div>
+            
+            <div style={{ 
+              height: '1px', 
+              background: '#E8E5E0', 
+              margin: '12px 0' 
+            }} />
+            
+            {monthsWithCounts.map(({ month, count }) => (
+              <div 
+                key={month}
+                className={`month-list-item ${selectedMonth === month ? 'active' : ''}`}
+                onClick={() => { setSelectedMonth(month); setSidebarOpen(false); }}
+              >
+                <span style={{ fontWeight: 500 }}>{month}</span>
+                <span className="month-count">{count}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       
       {/* Geometric Accents */}
       <div className="geometric-accent" style={{ top: '-200px', right: '-100px' }} />
@@ -664,32 +926,73 @@ export default function App() {
         maxWidth: '1300px',
         margin: '0 auto',
       }}>
-        {/* Search */}
-        <div style={{ position: 'relative', marginBottom: '32px', maxWidth: '480px' }}>
-          <svg 
-            style={{
-              position: 'absolute',
-              left: '22px',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              width: '20px',
-              height: '20px',
-              color: '#999',
-            }}
-            fill="none" 
-            stroke="currentColor" 
-            viewBox="0 0 24 24"
+        {/* Search and Month Button Row */}
+        <div style={{ 
+          display: 'flex', 
+          gap: '12px', 
+          marginBottom: '32px',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+        }}>
+          <div style={{ position: 'relative', flex: '1 1 300px', maxWidth: '480px' }}>
+            <svg 
+              style={{
+                position: 'absolute',
+                left: '22px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                width: '20px',
+                height: '20px',
+                color: '#999',
+              }}
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input
+              type="text"
+              className="search-input"
+              placeholder="Search topics or keywords..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          
+          <button 
+            className={`calendar-btn ${selectedMonth ? 'has-selection' : ''}`}
+            onClick={() => setSidebarOpen(true)}
           >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-          <input
-            type="text"
-            className="search-input"
-            placeholder="Search topics or keywords..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            {selectedMonth ? selectedMonth : 'Browse by Month'}
+          </button>
         </div>
+
+        {/* Active Month Filter Display */}
+        {selectedMonth && (
+          <div style={{ marginBottom: '20px' }}>
+            <span className="active-filter-tag">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+              {selectedMonth} 2026
+              <button onClick={() => setSelectedMonth(null)}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+            </span>
+          </div>
+        )}
 
         {/* Filter Groups */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
@@ -754,6 +1057,7 @@ export default function App() {
           color: '#999',
         }}>
           {filteredContent.length} {filteredContent.length === 1 ? 'article' : 'articles'}
+          {selectedMonth && ` in ${selectedMonth}`}
         </span>
         <div style={{ 
           flex: 1, 
@@ -794,7 +1098,13 @@ export default function App() {
                 gap: '12px', 
                 marginBottom: '16px' 
               }}>
-                <span className="month-badge">{item.month} 2026</span>
+                <span 
+                  className={`month-badge ${selectedMonth === item.month ? 'active' : ''}`}
+                  onClick={(e) => handleMonthClick(item.month, e)}
+                  title={`Filter by ${item.month}`}
+                >
+                  {item.month} 2026
+                </span>
                 {item.badge && <span className="source-badge">{item.badge}</span>}
               </div>
               
