@@ -91,6 +91,7 @@ function detectBadge(url, topic) {
   if (url.includes('linkedin.com')) return 'LinkedIn';
   if (url.includes('medium.com')) return 'Medium';
   if (url.includes('spotify.com')) return 'Spotify';
+  if (url.includes('databricksters.com')) return 'Databricksters';
   return null;
 }
 
