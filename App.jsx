@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import Papa from 'papaparse';
+import { Analytics } from '@vercel/analytics/react';
 
 // Google Sheet CSV URL - Update this if you change your sheet
 const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS0Gxp0gr3kpQ5E8KpZT_GNw4qZnV2vyFdFDetrgU_d63DYm5hR401XLFDBJzVkiDWkssP_pPCuMghc/pub?output=csv';
@@ -735,6 +736,7 @@ export default function App() {
           </p>
         </div>
       </footer>
+      <Analytics />
     </div>
   );
 }
